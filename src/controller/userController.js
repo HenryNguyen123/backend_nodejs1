@@ -32,9 +32,15 @@ const read = async (req, res) => {
     }
 }
 
-const create = (req, res) => {
+const create = async (req, res) => {
     try {
-        
+        const dataUser = req.body
+        const data = await UserService.createUser(dataUser)
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT
+        })
     } catch (error) {
         console.log(error)
         return res.status(500).json({
@@ -63,7 +69,6 @@ const update = (req, res) => {
 const destroy = async (req, res) => {
     try {
         const id = req.body.id
-        console.log(">>>> id > ", id)
         const data = await UserService.deleteUser(id)
         return res.status(200).json({
             EM: data.EM,

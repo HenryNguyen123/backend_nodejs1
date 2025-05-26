@@ -1,6 +1,15 @@
 const { Op } = require('sequelize');
 const db =  require('../models/index')
 
+// import bcrypt from "bcryptjs";
+const bcrypt = require("bcryptjs")
+let salt = bcrypt.genSaltSync(10);
+
+const hashPassword =  (password) => {
+    const hashPassword = bcrypt.hashSync(password, salt);
+    return hashPassword
+}
+
 const getAllUser = async() => {
     try {
         let user = await db.User.findAll({
@@ -64,8 +73,42 @@ const getAllUserWithPagination = async(page, limit) => {
     }
 }
 
-const createUser = (data) => {
-
+const createUser = async(data) => {
+    try {
+        const checkUser = await db.User.findOne({ where: { 
+                                                [Op.or]: [
+                                                    {userName: data.userName},
+                                                    {email: data.email},
+                                                    {phone: data.phone}
+                                                ]
+                                            } 
+                                        });
+        if (checkUser) {
+            return {
+                EM: 'Email, phone number, or username already exists. Please try again.',
+                EC: 2,
+                DT:''
+            }
+        } 
+        const hashPasswordNew = hashPassword(data.password)
+        await db.User.create({ 
+                                name: data.name, password: hashPasswordNew, email: data.email, userName: data.userName,
+                                address: data.address, sex: data.gender, phone: data.phone,
+                                groupId: data.group  
+                            });
+        return {
+            EM: 'Create add new user successfuly',
+            EC: 0,
+            DT:''
+        }
+    } catch (error) {
+        console.log(error)
+        return {
+            EM: 'error from server',
+            EC: 1,
+            DT:''
+        }
+    }
 }
 
 const updateUser = async(data) => {
