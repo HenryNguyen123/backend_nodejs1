@@ -12,8 +12,11 @@ apiRouter.post('/login', apiController.handleLogin)
 //get - R, post - c, put - U, delete - D
 apiRouter.get('/user/show', userController.read)
 apiRouter.post('/user/create', userController.create)
-apiRouter.put('/user/show', userController.update)
+apiRouter.put('/user/update', userController.update)
 apiRouter.delete('/user/delete', userController.destroy)
+
+apiRouter.post('/user/get-user', userController.readOneUser)
+
 
 apiRouter.get('/group', groupController.getGroup)
 

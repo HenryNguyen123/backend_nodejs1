@@ -54,7 +54,6 @@ const getAllUserWithPagination = async(page, limit) => {
             totalPages : pageCount,
             users : rows
         }
-        console.log('check data >>> ', data)
         if (rows) {
             return {
                 EM: "get successfuly data",
@@ -113,18 +112,31 @@ const createUser = async(data) => {
 
 const updateUser = async(data) => {
     try {
-        let user = await db.User.findOne({ where: {id: data.id}})
-        if (data) {
-            return res.status(200).json({
-                EM: "Delete user successfuly",
+        console.log('check userName >>>>>> ', data)
+
+        let res = await db.User.update(
+                            {name: data.name, address: data.address, sex: data.gender, groupId: data.group},
+                            {where: {id: data.userId}}
+                        )
+        if (res) {
+            return {
+                EM: "Edit user successfuly",
                 EC: 0,
                 DT: ''
-            })
-        } else {
-            //not found
+            }
+        }
+        return {
+            EM: "Error with server ",
+            EC: 2,
+            DT: ''
         }
     } catch (error) {
         console.log(error)
+        return {
+            EM: "Error with server ",
+            EC: 2,
+            DT: ''
+        }
     }
 }
 
@@ -157,10 +169,41 @@ const deleteUser = async(id) => {
     }
 }
 
+const handleGetOneUser =  async(id)=> {
+    try {
+        let response = await db.User.findOne({ 
+                                                where: {id: id},
+                                                attributes: ["id", "name", "userName", "email", "groupId", "phone", "sex"],
+                                                include: {model: db.Group, attributes: ['id', 'name', 'description']},
+                                                raw: true,
+                                                nest: true
+                                            })
+        if (response) {
+            return {
+                EM: "get User success!",
+                EC: 0,
+                DT: response
+            }
+        }
+        return {
+            EM: 'error with server',
+            EC: 1,
+            DT:[]
+        }
+    } catch (error) {
+        console.log(error)
+        return {
+            EM: 'error with server',
+            EC: 1,
+            DT:''
+        }
+    }
+}
 module.exports = {
     getAllUser,
     getAllUserWithPagination,
     createUser, 
     updateUser,
-    deleteUser
+    deleteUser,
+    handleGetOneUser
 }

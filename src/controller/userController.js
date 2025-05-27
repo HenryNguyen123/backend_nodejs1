@@ -52,9 +52,23 @@ const create = async (req, res) => {
     }
 }
 
-const update = (req, res) => {
+const update = async (req, res) => {
     try {
-        
+        // console.log(req.body)
+        const data = await UserService.updateUser(req.body)
+        console.log('data >>>>>>>>>>', data)
+        if (data) {
+            return res.status(200).json({
+                EM: data.EM,
+                EC: data.EC,
+                DT: data.DT
+            })
+        }
+        return res.status(200).json({
+            EM: 'error with server',
+            EC: 2,
+            DT: ''
+        })
     } catch (error) {
         console.log(error)
         return res.status(500).json({
@@ -86,9 +100,35 @@ const destroy = async (req, res) => {
     }
 }
 
+const readOneUser = async (req, res) => {
+    try {
+        const data = await UserService.handleGetOneUser(req.body.id)
+        if (data) {
+            return res.status(200).json({
+                EM: data.EM,
+                EC: data.EC,
+                DT: data.DT
+            })
+        }
+        return res.status(200).json({
+            EM: 'error with server',
+            EC: 1,
+            DT: 0
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            EM: 'error with server',
+            EC: 2,
+            DT: 0
+        })
+    }
+}
+
 module.exports = {
     read,
     create,
     update,
-    destroy
+    destroy,
+    readOneUser
 }
