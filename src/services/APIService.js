@@ -1,5 +1,8 @@
 const { or, Op } = require('sequelize');
 const db = require('../models/index')
+const {getGroupWithRole} = require('../services/JWTservice')
+const {createJWT} = require('../middlewares/JWTaction')
+require('dotenv').config()
 
 const bcrypt = require("bcryptjs")
 let salt = bcrypt.genSaltSync(10);
@@ -40,6 +43,7 @@ const registerNewUser = async (data) => {
             password: getHashPassword,
             userName: data.userName,
             name: data.name,
+            groupId: 2,
             createdAt: new Date(),
             updatedAt: new Date()
         });
@@ -59,8 +63,8 @@ const registerNewUser = async (data) => {
 }
 
 const LoginUser = async(data) => {
-    console.log('data >>>>>', data)
-    console.log('check login')
+    // console.log('data >>>>>', data)
+    // console.log('check login')
     try {
         const user = await db.User.findOne({ where: {     
                             [Op.or]: [
@@ -73,7 +77,6 @@ const LoginUser = async(data) => {
         if(user) {
             //check password 
             let checkpassword = checkHashPassword(data.password, user.password);
-            console.log('check password >>> ', checkpassword)
             if (!checkpassword) {
                 console.log('not found user with email/phone', data)
                 return {
@@ -82,10 +85,25 @@ const LoginUser = async(data) => {
                     DT: ''
                 }
             }
+            
+            //test role
+            const groupWithRole = await getGroupWithRole(user)
+            const payload = {
+                email: user.email,
+                groupWithRole,
+                expiresIn: process.env.JWT_EXPIRESIN
+            }
+
+            // token
+            let token = createJWT(payload)
+
             return {
                 EM:'success!',
                 EC: 0,
-                DT: ''
+                DT: {
+                    acces_token: token,
+                    data: groupWithRole
+                }
             }
 
         }

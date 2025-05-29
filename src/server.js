@@ -2,6 +2,9 @@ const express = require('express');
 require('dotenv').config();
 const bodyParser = require('body-parser')
 const testConnection = require('./config/connectDB')
+const {createJWT, verifyToken} = require('./middlewares/JWTaction')
+
+
 var cors = require('cors')
 
 const app = express();
@@ -24,6 +27,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // test connection
 testConnection()
+
+// test jwt
+// let token = createJWT()
+// let decodeData = verifyToken(token)
 
 //show router
 configViewEngine(app)
