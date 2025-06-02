@@ -4,7 +4,6 @@ const read = async (req, res) => {
     try {
         let page = parseInt(req.query.page)
         let limit = parseInt(req.query.limit)
-
         const data = await UserService.getAllUserWithPagination(page, limit)
         return res.status(200).json({
             EM: data.EM,

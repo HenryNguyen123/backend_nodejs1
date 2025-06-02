@@ -1,7 +1,6 @@
 const APIService = require('../services/APIService')
 
 
-
 const apiTest = (req, res) => {
 
     return res.status(200).json({
@@ -72,6 +71,10 @@ const handleLogin = async(req, res) => {
 
         //
         const data = await APIService.LoginUser(req.body)
+
+        //set cookie
+        res.cookie('JWT', data.DT.acces_token, {httpOnly: true}, {maxAge: 3600})
+
 
         return res.status(200).json({
             EM: data.EM,
