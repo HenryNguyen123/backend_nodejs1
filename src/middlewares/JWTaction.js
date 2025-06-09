@@ -2,10 +2,12 @@ require('dotenv').config()
 var jwt = require('jsonwebtoken');
     const publicPaths = ['/login', '/register', '/test-api']
 const createJWT = (payload) => {
-    let key =  process.env.JWT_SECERT
+    let key =  process.env.JWT_SECRET
     let token = null
     try {
-        token = jwt.sign(payload, key);
+        token = jwt.sign(payload, key,{
+            expiresIn: parseInt(process.env.JWT_EXPIRESIN)
+        });
     } catch (error) {
         console.log(error)
     }
@@ -13,7 +15,7 @@ const createJWT = (payload) => {
 }
 
 const verifyToken = (token) => {
-    let key =  process.env.JWT_SECERT
+    let key =  process.env.JWT_SECRET
     // let data = null
     // jwt.verify(token, key, function(err, decoded) {
     //     if(err) {
@@ -32,16 +34,26 @@ const verifyToken = (token) => {
     }
 }
 
+const extractToken = (req) => {
+    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+        return req.headers.authorization.split(' ')[1];
+    }
+    return null;
+}
+
 const checkUserJWT = (req, res, next) => {
     if (publicPaths.includes(req.path)) return next() // Cho phép vào các route public
 
     let cookie = req.cookies
-    if (cookie && cookie.JWT) {
-        let token = cookie.JWT
+    const tokenFromHeader = extractToken(req)
+    if ((cookie && cookie.JWT) || tokenFromHeader) {
+        let token = cookie?.JWT || tokenFromHeader
         let decoded = verifyToken(token)
-         req.user = decoded
+        //create request req.user
+        req.user = decoded
+        req.token = token
         if (decoded) {
-            next()
+            return next()
         } else {
             return res.status(401).json({
                 EM: 'not authenticated the user',
@@ -49,17 +61,16 @@ const checkUserJWT = (req, res, next) => {
                 DT: ''
             })
         }
-    } else {
-        return res.status(401).json({
-            EM: 'not authenticated the user',
-            EC: 1,
-            DT: ''
-        })
     }
+    return res.status(401).json({
+        EM: 'not authenticated the user',
+        EC: 1,
+        DT: ''
+    })
 }
 
 const checkUserPromision = (req, res, next) => {
-    if (publicPaths.includes(req.path)) return next() // Cho phép vào các route public
+    if (publicPaths.includes(req.path) || req.path === '/account') return next() // Cho phép vào các route public
 
     if (req.user) {
         let email =  req.user.email

@@ -26,12 +26,10 @@ const {checkUserJWT, checkUserPromision} = require('../middlewares/JWTaction')
 apiRouter.get('/test-api', apiController.apiTest)
 
 apiRouter.post('/register', apiController.handleRegister)
-
 apiRouter.post('/login', apiController.handleLogin)
 
 //check all router
 apiRouter.use(checkUserJWT,checkUserPromision)
-
 //get - R, post - c, put - U, delete - D
 apiRouter.get('/user/show', userController.read)
 apiRouter.post('/user/create', userController.create)
@@ -40,7 +38,8 @@ apiRouter.delete('/user/delete', userController.destroy)
 
 apiRouter.post('/user/get-user', userController.readOneUser)
 apiRouter.get('/group', groupController.getGroup)
-
+//check user
+apiRouter.get('/account', apiController.handleAccount)
 
 
 module.exports = apiRouter

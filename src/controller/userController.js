@@ -53,9 +53,7 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
     try {
-        // console.log(req.body)
         const data = await UserService.updateUser(req.body)
-        console.log('data >>>>>>>>>>', data)
         if (data) {
             return res.status(200).json({
                 EM: data.EM,

@@ -72,7 +72,6 @@ const LoginUser = async(data) => {
                                 { email: data.userName }
                                 ]} 
                             });
-        console.log('user >> ', user)
 
         if(user) {
             //check password 
@@ -91,7 +90,7 @@ const LoginUser = async(data) => {
             const payload = {
                 email: user.email,
                 groupWithRole,
-                expiresIn: process.env.JWT_EXPIRESIN
+                userName: user.userName
             }
 
             // token
@@ -102,7 +101,9 @@ const LoginUser = async(data) => {
                 EC: 0,
                 DT: {
                     acces_token: token,
-                    data: groupWithRole
+                    data: groupWithRole,
+                    email: user.email,
+                    userName: user.userName
                 }
             }
 
@@ -114,9 +115,15 @@ const LoginUser = async(data) => {
             DT: ''
         }
     } catch (error) {
-        
+            console.error('Login error >>>', error)
+            return {
+                EM: 'Server error!',
+                EC: 1,
+                DT: ''
+            }
     }
 }
+
 module.exports = {
     registerNewUser,
     LoginUser

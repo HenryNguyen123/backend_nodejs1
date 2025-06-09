@@ -29,7 +29,6 @@ const handleRegister = async (req, res) => {
         }
         // service
         let data = await APIService.registerNewUser(req.body)
-
         return res.status(200).json({
             EM: data.EM,
             EC: data.EC,
@@ -43,11 +42,6 @@ const handleRegister = async (req, res) => {
             DT: ''
         })
     }
-    console.log('resulf >>> ', req.body)
-    // return res.status(200).json({
-    //     message: 'success'
-    // })
-
 }
 
 const handleLogin = async(req, res) => {
@@ -68,14 +62,12 @@ const handleLogin = async(req, res) => {
             })
 
         }
-
         //
         const data = await APIService.LoginUser(req.body)
-
         //set cookie
-        res.cookie('JWT', data.DT.acces_token, {httpOnly: true}, {maxAge: 3600})
-
-
+        if (data && data.DT && data.DT.acces_token) {
+            res.cookie('JWT', data.DT.acces_token, {httpOnly: true}, {maxAge: 3600})
+        }
         return res.status(200).json({
             EM: data.EM,
             EC: data.EC,
@@ -91,9 +83,22 @@ const handleLogin = async(req, res) => {
     }
 }
 
+const handleAccount = async(req, res) => {
+    return res.status(200).json({
+        EM:'check account success',
+        EC: 0,
+        DT: {
+                acces_token: req.token,
+                data: req.user.groupWithRole?.Roles, //groupWithRole
+                email: req.user.email,
+                userName: req.user.userName
+        }
+    })
+}
 
 module.exports = {
     apiTest,
     handleRegister,
-    handleLogin
+    handleLogin,
+    handleAccount
 }
